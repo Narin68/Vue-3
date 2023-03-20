@@ -11,7 +11,6 @@
     <button @click="toggleTheme">Change theme</button>
   </div>
 </template>
-
 <script>
 import PostList from "../components/PostsList.vue";
 import getPosts from "../composables/getPosts";
