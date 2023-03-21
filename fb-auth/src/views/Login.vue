@@ -14,7 +14,7 @@
           <span class="focus-bg"></span>
         </div>
         <button class="ripple my-btn" type="submit" value="register">
-          Submit
+          Register
         </button>
       </form>
     </section>
@@ -26,21 +26,45 @@
           <span class="label">Email</span>
           <span class="focus-bg"></span>
         </div>
-        <div class="inp">
+        <div class="inp" style="margin-bottom: 0">
           <input type="password" required v-model="loginPassword" />
           <span class="label">Password</span>
           <span class="focus-bg"></span>
         </div>
-        <button class="ripple my-btn" value="login" type="submit">
-          Submit
-        </button>
+        <router-link :to="{ name: 'ForgotPassword' }"
+          ><div class="forgot-password">Forgot password</div></router-link
+        >
+        <div></div>
+        <button class="ripple my-btn" value="login" type="submit">Login</button>
+        <div style="margin-top: 10px">Or</div>
+        <div
+          class="forgot-password"
+          style="text-align: center"
+          @click="signInWithGoogle"
+        >
+          Sign in with Google
+        </div>
+        <div
+          class="forgot-password"
+          style="text-align: center"
+          @click="signInWithFB"
+        >
+          Sign in with Facebook
+        </div>
+        <div
+          class="forgot-password"
+          style="text-align: center"
+          @click="signInWithGithub"
+        >
+          Sign in with Github
+        </div>
       </form>
     </section>
   </main>
 </template>
 
 <script>
-import { ref, watchEffect } from "vue";
+import { ref } from "vue";
 import { useStore } from "vuex";
 export default {
   setup() {
@@ -64,6 +88,18 @@ export default {
       store.dispatch("register", { email, password });
     };
 
+    const signInWithGoogle = () => {
+      store.dispatch("signInWithGoogle");
+    };
+
+    const signInWithFB = () => {
+      store.dispatch("signInWithFacebook");
+    };
+
+    const signInWithGithub = () => {
+      store.dispatch("signInWithGithub");
+    };
+
     return {
       register,
       login,
@@ -71,10 +107,26 @@ export default {
       loginPassword,
       registerEmail,
       registerPassword,
+      signInWithGoogle,
+      signInWithFB,
+      signInWithGithub,
     };
   },
 };
 </script>
 
 <style>
+.forgot-password {
+  font-size: 14px;
+  color: black;
+  text-decoration: none;
+  width: 100%;
+  text-align: right;
+  margin-bottom: 15px;
+  margin-top: 5px;
+  cursor: pointer;
+}
+.forgot-password:hover {
+  color: grey;
+}
 </style>

@@ -1,20 +1,28 @@
 import { createStore } from 'vuex'
 import { auth } from '../firebase'
+
 import router from '@/router'
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth"
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signOut,
+  updatePassword,
+  sendPasswordResetEmail,
+  signInWithPopup,
+  FacebookAuthProvider,
+  GithubAuthProvider
+} from "firebase/auth"
 export default createStore({
   state: {
     user: null,
+    count: 0,
   },
   getters: {
   },
   mutations: {
     SET_USER(state, user) {
-
       state.user = user;
-      console.log(state.user);
-
-
     },
     CLEAR_USER(state) {
       state.user = null;
@@ -40,12 +48,12 @@ export default createStore({
 
           default:
             alert(e.message);
-            break
-
+            break;
         }
         return;
       }
-      commit("SET_USER", auth.currentUser);
+      // commit("SET_USER", auth.currentUser);
+      this.state.user = auth.currentUser;
       router.push("/");
     },
     async register({ commit }, details) {
@@ -73,7 +81,8 @@ export default createStore({
         return;
       }
 
-      commit("SET_USER", auth.currentUser);
+      // commit("SET_USER", auth.currentUser);
+      this.state.user = auth.currentUser;
       router.push("/");
 
       //
@@ -81,8 +90,85 @@ export default createStore({
 
     async logout({ commit }) {
       await signOut(auth);
-      commit("CLEAR_USER");
+      // commit("CLEAR_USER");
+      this.state.user = null;
       router.push("/login");
+    },
+
+    async changePassword({ commit }, details) {
+      const { newPass, confirmPass } = details;
+      console.log(newPass, confirmPass);
+      try {
+        console.log(auth.currentUser);
+        await updatePassword(auth.currentUser, newPass);
+        alert("Success update password !");
+      } catch (e) {
+        alert(e.message);
+        return;
+      }
+
+      this.state.user = auth.currentUser;
+      router.back(-1);
+    },
+    async sendEmailResetPassword({ commit }, details) {
+      const { email } = details;
+      console.log(email);
+      try {
+        await sendPasswordResetEmail(auth, email);
+      } catch (e) {
+        alert(e.message);
+        return;
+      }
+      router.back(-1);
+    },
+
+    async signInWithGoogle() {
+      const provider = new GoogleAuthProvider();
+
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const credential = GoogleAuthProvider.credentialFromResult(result);
+          const token = credential.accessToken;
+          const user = result.user;
+          this.state.user = user;
+          router.push("/");
+        }).catch((error) => {
+          alert(error.message);
+          return;
+        });
+      this.state.user = auth.currentUser;
+    },
+    async signInWithFacebook() {
+      const provider = new FacebookAuthProvider();
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          const credential = FacebookAuthProvider.credentialFromResult(result);
+          const accessToken = credential.accessToken;
+          this.state.user = user;
+          router.push("/");
+          return;
+        })
+        .catch((error) => {
+          alert(error.message);
+          return;
+        });
+    },
+    async signInWithGithub() {
+      const provider = new GithubAuthProvider();
+      signInWithPopup(auth, provider)
+        .then((result) => {
+          const user = result.user;
+          const credential = GithubAuthProvider.credentialFromResult(result);
+          const accessToken = credential.accessToken;
+          this.state.user = user;
+          router.push("/");
+          return;
+        })
+        .catch((error) => {
+          alert(error.message);
+          return;
+        });
     }
 
   },
